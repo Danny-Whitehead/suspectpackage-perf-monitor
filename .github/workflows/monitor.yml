@@ -53,9 +53,4 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data
-          if ! git diff --staged --quiet; then
-            git commit -m "Add performance data $(date -u '+%Y-%m-%d %H:%M') UTC"
-            git pull --rebase
-            git push
-          fi
+          bash scripts/commit-data.sh
