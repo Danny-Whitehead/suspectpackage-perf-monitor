@@ -9,11 +9,11 @@ on:
       url:
         description: 'Test only this URL (leave blank for all pages in config.json)'
         required: false
-        default: ''
+        type: string
       runs:
         description: 'Lighthouse runs per page (blank = config.json value)'
         required: false
-        default: ''
+        type: string
 
 permissions:
   contents: write
