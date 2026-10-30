@@ -1,2 +1,3 @@
 timestamp,slot,url,device,runs,score,lcp,cls,tbt,fcp,ttfb,si
 2026-10-30T14:03:55.239Z,manual,https://suspectpackage.com/,mobile,1,33,14900,0,2797,3447,26,6715
+2026-10-30T14:29:53.643Z,manual,https://suspectpackage.com/,mobile,1,33,15022,0,2885,3586,60,6691

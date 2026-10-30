@@ -1,0 +1,12 @@
+date,url,device,level,lcp,inp,cls,fcp,ttfb
+2026-10-30,https://suspectpackage.com/,mobile,url,,,0.26,1809,
+2026-10-30,https://suspectpackage.com/product-category/spray-cans/,mobile,origin,2641,185,0,2629,2358
+2026-10-30,https://suspectpackage.com/product-category/spray-cans/spray-paint/,mobile,origin,2641,185,0,2629,2358
+2026-10-30,https://suspectpackage.com/product-category/markers/,mobile,origin,2641,185,0,2629,2358
+2026-10-30,https://suspectpackage.com/product-category/spray-caps/,mobile,origin,2641,185,0,2629,2358
+2026-10-30,https://suspectpackage.com/product-category/spray-cans/?product_range%5B%5D=molotow-premium,mobile,origin,2641,185,0,2629,2358
+2026-10-30,https://suspectpackage.com/product/mtn-montana-colors-hardcore-400ml/,mobile,url,4503,302,0,4396,3799
+2026-10-30,https://suspectpackage.com/product/mtn-montana-colors-94-400ml/,mobile,origin,2641,185,0,2629,2358
+2026-10-30,https://suspectpackage.com/product/molotow-premium-400ml/,mobile,origin,2641,185,0,2629,2358
+2026-10-30,https://suspectpackage.com/basket/,mobile,origin,2641,185,0,2629,2358
+2026-10-30,https://suspectpackage.com/checkout/,mobile,origin,2641,185,0,2629,2358
