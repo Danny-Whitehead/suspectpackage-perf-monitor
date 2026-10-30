@@ -1,0 +1,18 @@
+{
+  "urls": [
+    "https://suspectpackage.com/",
+    "https://suspectpackage.com/product-category/spray-cans/",
+    "https://suspectpackage.com/product-category/spray-cans/spray-paint/",
+    "https://suspectpackage.com/product-category/markers/",
+    "https://suspectpackage.com/product-category/spray-caps/",
+    "https://suspectpackage.com/product-category/spray-cans/?product_range%5B%5D=molotow-premium",
+    "https://suspectpackage.com/product/mtn-montana-colors-hardcore-400ml/",
+    "https://suspectpackage.com/product/mtn-montana-colors-94-400ml/",
+    "https://suspectpackage.com/product/molotow-premium-400ml/",
+    "https://suspectpackage.com/basket/",
+    "https://suspectpackage.com/checkout/"
+  ],
+  "devices": ["mobile"],
+  "runsPerUrl": 3,
+  "slotsUtc": ["00:00", "10:00", "17:00", "21:00"]
+}

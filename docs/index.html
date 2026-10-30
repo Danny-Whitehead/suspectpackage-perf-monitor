@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuspectPackage – Web performance</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  :root { color-scheme: light dark; --good: #0a8f3c; --ni: #d98200; --poor: #d12b2b; }
+  body { font: 14px/1.4 system-ui, sans-serif; margin: 0; padding: 1.5rem; max-width: 1200px; margin-inline: auto; }
+  h1 { font-size: 1.4rem; margin: 0 0 1rem; }
+  h2 { font-size: 1.1rem; margin: 2rem 0 .5rem; }
+  .controls { display: flex; flex-wrap: wrap; gap: .75rem 1.25rem; align-items: end; margin-bottom: 1rem; }
+  label { display: flex; flex-direction: column; gap: .2rem; font-weight: 600; font-size: 12px; }
+  select { font: inherit; padding: .3rem .5rem; max-width: 420px; }
+  .slots { display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; }
+  .slots label { flex-direction: row; align-items: center; font-weight: 400; font-size: 14px; }
+  .chart { position: relative; height: 380px; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { text-align: right; padding: .35rem .6rem; border-bottom: 1px solid #8884; }
+  th:first-child, td:first-child { text-align: left; }
+  td.good { color: var(--good); font-weight: 600; }
+  td.ni { color: var(--ni); font-weight: 600; }
+  td.poor { color: var(--poor); font-weight: 600; }
+  .muted { color: #888; font-size: 12px; }
+  #error { color: var(--poor); }
+</style>
+</head>
+<body>
+<h1>Web performance</h1>
+<p id="error"></p>
+
+<div class="controls">
+  <label>Page <select id="page"></select></label>
+  <label>Device <select id="device"></select></label>
+  <label>Metric <select id="metric"></select></label>
+  <label>Range
+    <select id="range">
+      <option value="7">Last 7 days</option>
+      <option value="30" selected>Last 30 days</option>
+      <option value="90">Last 90 days</option>
+      <option value="0">All time</option>
+    </select>
+  </label>
+  <div class="slots" id="slots"></div>
+</div>
+
+<div class="chart"><canvas id="labChart"></canvas></div>
+<p class="muted">Lab data: median of several Lighthouse runs per time slot (UTC), simulated throttling.</p>
+
+<h2>Latest results</h2>
+<div id="latest"></div>
+
+<h2>Real users (CrUX p75)</h2>
+<div class="controls">
+  <label>Metric
+    <select id="cruxMetric">
+      <option value="lcp">LCP (ms)</option>
+      <option value="inp">INP (ms)</option>
+      <option value="cls">CLS</option>
+      <option value="fcp">FCP (ms)</option>
+      <option value="ttfb">TTFB (ms)</option>
+    </select>
+  </label>
+</div>
+<div class="chart"><canvas id="cruxChart"></canvas></div>
+<p class="muted" id="cruxNote">Field data is a rolling 28-day 75th percentile from Chrome users, snapshotted daily. URLs without enough traffic fall back to site-wide (origin) data.</p>
+
+<script>
+const METRICS = {
+  score: { label: 'Performance score', unit: '', good: 90, poor: 50, higherIsBetter: true },
+  lcp: { label: 'LCP (ms)', unit: 'ms', good: 2500, poor: 4000 },
+  cls: { label: 'CLS', unit: '', good: 0.1, poor: 0.25 },
+  tbt: { label: 'TBT (ms)', unit: 'ms', good: 200, poor: 600 },
+  fcp: { label: 'FCP (ms)', unit: 'ms', good: 1800, poor: 3000 },
+  ttfb: { label: 'TTFB (ms)', unit: 'ms', good: 800, poor: 1800 },
+  si: { label: 'Speed Index (ms)', unit: 'ms', good: 3400, poor: 5800 },
+};
+const CRUX_THRESHOLDS = {
+  lcp: METRICS.lcp, inp: { good: 200, poor: 500 }, cls: METRICS.cls, fcp: METRICS.fcp, ttfb: METRICS.ttfb,
+};
+const SLOT_COLOURS = { '00:00': '#6366f1', '10:00': '#0ea5e9', '17:00': '#f59e0b', '21:00': '#ec4899', manual: '#9ca3af' };
+
+const $ = (id) => document.getElementById(id);
+let lab = [];
+let crux = [];
+let labChart;
+let cruxChart;
+
+function parseCsv(text) {
+  const [header, ...lines] = text.trim().split('\n');
+  const keys = header.split(',');
+  return lines.filter(Boolean).map((line) => {
+    const cells = line.split(',');
+    return Object.fromEntries(keys.map((key, i) => [key, cells[i]]));
+  });
+}
+
+async function load(path) {
+  const response = await fetch(path, { cache: 'no-cache' });
+  return response.ok ? parseCsv(await response.text()) : [];
+}
+
+function shortName(url) {
+  const { pathname, search } = new URL(url);
+  const path = pathname === '/' ? 'Home' : pathname.replace(/\/$/, '');
+  return path + (search ? ' ' + decodeURIComponent(search) : '');
+}
+
+function rating(metric, value, thresholds = METRICS[metric]) {
+  if (value === '' || value === undefined || Number.isNaN(value)) return '';
+  if (thresholds.higherIsBetter) return value >= thresholds.good ? 'good' : value >= thresholds.poor ? 'ni' : 'poor';
+  return value <= thresholds.good ? 'good' : value <= thresholds.poor ? 'ni' : 'poor';
+}
+
+function fill(select, options, selected) {
+  select.innerHTML = options.map(([value, text]) => `<option value="${value}">${text}</option>`).join('');
+  if (selected) select.value = selected;
+}
+
+function cutoff() {
+  const days = Number($('range').value);
+  return days ? Date.now() - days * 86400000 : 0;
+}
+
+function drawLab() {
+  const url = $('page').value;
+  const device = $('device').value;
+  const metric = $('metric').value;
+  const enabledSlots = [...document.querySelectorAll('#slots input:checked')].map((box) => box.value);
+  const rows = lab.filter((r) => r.url === url && r.device === device && new Date(r.timestamp) >= cutoff());
+
+  const datasets = enabledSlots.map((slot) => ({
+    label: slot === 'manual' ? 'Manual runs' : slot + ' UTC',
+    borderColor: SLOT_COLOURS[slot] || '#999',
+    backgroundColor: SLOT_COLOURS[slot] || '#999',
+    tension: 0,
+    spanGaps: true,
+    data: rows.filter((r) => r.slot === slot).map((r) => ({ x: new Date(r.timestamp), y: Number(r[metric]) })),
+  }));
+
+  labChart?.destroy();
+  labChart = new Chart($('labChart'), {
+    type: 'line',
+    data: { datasets },
+    options: {
+      maintainAspectRatio: false,
+      interaction: { mode: 'nearest', intersect: false },
+      scales: {
+        x: { type: 'time', time: { unit: 'day' } },
+        y: { beginAtZero: true, title: { display: true, text: METRICS[metric].label } },
+      },
+      plugins: { title: { display: true, text: `${shortName(url)} – ${METRICS[metric].label}` } },
+    },
+  });
+}
+
+function drawLatest() {
+  const device = $('device').value;
+  const latest = new Map();
+  for (const row of lab) {
+    if (row.device !== device) continue;
+    const previous = latest.get(row.url);
+    if (!previous || row.timestamp > previous.timestamp) latest.set(row.url, row);
+  }
+  const columns = ['score', 'lcp', 'cls', 'tbt', 'fcp', 'ttfb', 'si'];
+  const head = columns.map((c) => `<th>${METRICS[c].label}</th>`).join('');
+  const body = [...latest.values()].map((row) => {
+    const cells = columns.map((c) => `<td class="${rating(c, Number(row[c]))}">${row[c]}</td>`).join('');
+    return `<tr><td>${shortName(row.url)}</td>${cells}</tr>`;
+  }).join('');
+  const when = [...latest.values()][0]?.timestamp;
+  $('latest').innerHTML = latest.size
+    ? `<table><thead><tr><th>Page</th>${head}</tr></thead><tbody>${body}</tbody></table>
+       <p class="muted">Most recent run per page${when ? ' (latest: ' + new Date(when).toLocaleString() + ')' : ''}.</p>`
+    : '<p class="muted">No data yet.</p>';
+}
+
+function drawCrux() {
+  const url = $('page').value;
+  const device = $('device').value;
+  const metric = $('cruxMetric').value;
+  const rows = crux.filter((r) => r.url === url && r.device === device && new Date(r.date) >= cutoff());
+  const unit = metric === 'cls' ? '' : ' (ms)';
+  const levels = [...new Set(rows.map((r) => r.level))].join(', ');
+  $('cruxNote').textContent = rows.length
+    ? `Showing ${levels}-level data. Rolling 28-day p75 from Chrome users, snapshotted daily.`
+    : 'No real-user data recorded for this page yet (needs CRUX_API_KEY and enough traffic).';
+
+  cruxChart?.destroy();
+  cruxChart = new Chart($('cruxChart'), {
+    type: 'line',
+    data: {
+      datasets: [{
+        label: `p75 ${metric.toUpperCase()}`,
+        borderColor: '#10b981',
+        backgroundColor: '#10b981',
+        tension: 0,
+        data: rows.filter((r) => r[metric] !== '').map((r) => ({ x: new Date(r.date), y: Number(r[metric]) })),
+      }],
+    },
+    options: {
+      maintainAspectRatio: false,
+      scales: {
+        x: { type: 'time', time: { unit: 'day' } },
+        y: { beginAtZero: true, title: { display: true, text: metric.toUpperCase() + unit } },
+      },
+    },
+  });
+}
+
+function drawAll() {
+  drawLab();
+  drawLatest();
+  drawCrux();
+}
+
+async function init() {
+  [lab, crux] = await Promise.all([load('data/lighthouse.csv'), load('data/crux.csv')]);
+  if (!lab.length) {
+    $('error').textContent = 'No data yet. Run the workflow to collect the first results.';
+    return;
+  }
+  const urls = [...new Set(lab.map((r) => r.url))];
+  fill($('page'), urls.map((u) => [u, shortName(u)]));
+  fill($('device'), [...new Set(lab.map((r) => r.device))].map((d) => [d, d]));
+  fill($('metric'), Object.entries(METRICS).map(([key, m]) => [key, m.label]), 'lcp');
+
+  const slots = [...new Set(lab.map((r) => r.slot))].sort();
+  $('slots').innerHTML = slots.map((slot) =>
+    `<label><input type="checkbox" value="${slot}" checked> ${slot === 'manual' ? 'Manual' : slot + ' UTC'}</label>`).join('');
+
+  document.querySelectorAll('.controls select, #slots input').forEach((el) => el.addEventListener('change', drawAll));
+  drawAll();
+}
+
+init().catch((error) => { $('error').textContent = 'Could not load data: ' + error.message; });
+</script>
+</body>
+</html>
