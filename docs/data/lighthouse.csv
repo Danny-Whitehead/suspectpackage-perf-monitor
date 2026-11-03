@@ -354,3 +354,5 @@ timestamp,slot,url,device,runs,score,lcp,cls,tbt,fcp,ttfb,si
 2026-11-03T10:06:05.881Z,10:00,https://suspectpackage.com/product/molotow-premium-400ml/,desktop,3,95,1231,0,80,868,31,1467
 2026-11-03T10:06:05.881Z,10:00,https://suspectpackage.com/basket/,desktop,3,95,893,0.0068,50,892,1063,1782
 2026-11-03T10:06:05.881Z,10:00,https://suspectpackage.com/checkout/,desktop,3,94,887,0.0081,56,880,1016,2090
+2026-11-03T15:53:48.110Z,manual,https://suspectpackage.com/clearance/clearance/,mobile,3,44,16405,0,923,3411,42,4888
+2026-11-03T15:53:48.110Z,manual,https://suspectpackage.com/clearance/clearance/,desktop,3,98,901,0,37,826,47,1011

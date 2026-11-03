@@ -109,3 +109,5 @@ date,url,device,level,lcp,inp,cls,fcp,ttfb
 2026-11-03,https://suspectpackage.com/product/molotow-premium-400ml/,desktop,origin,2462,76,0.02,2391,2288
 2026-11-03,https://suspectpackage.com/basket/,desktop,origin,2462,76,0.02,2391,2288
 2026-11-03,https://suspectpackage.com/checkout/,desktop,origin,2462,76,0.02,2391,2288
+2026-11-03,https://suspectpackage.com/clearance/clearance/,mobile,origin,2570,182,0,2547,2232
+2026-11-03,https://suspectpackage.com/clearance/clearance/,desktop,origin,2450,76,0.02,2389,2274
