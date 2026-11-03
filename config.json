@@ -10,7 +10,8 @@
     "https://suspectpackage.com/product/mtn-montana-colors-94-400ml/",
     "https://suspectpackage.com/product/molotow-premium-400ml/",
     "https://suspectpackage.com/basket/",
-    "https://suspectpackage.com/checkout/"
+    "https://suspectpackage.com/checkout/",
+    "https://suspectpackage.com/clearance/clearance/"
   ],
   "devices": ["mobile", "desktop"],
   "runsPerUrl": 3,
