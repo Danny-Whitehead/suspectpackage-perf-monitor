@@ -2350,3 +2350,5 @@ timestamp,slot,url,device,runs,score,lcp,cls,tbt,fcp,ttfb,si
 2026-11-24T00:13:20.910Z,00:00,https://suspectpackage.com/clearance/clearance/,desktop,3,98,962,0,13,803,51,803
 2026-11-24T08:51:55.499Z,manual,https://suspectpackage.com/,mobile,1,37,15638,0,2466,3310,14,4939
 2026-11-24T08:51:55.499Z,manual,https://suspectpackage.com/,desktop,1,96,882,0,138,806,26,806
+2026-11-24T09:11:55.167Z,manual,https://suspectpackage.com/,mobile,1,43,16667,0,1066,3393,17,4970
+2026-11-24T09:11:55.167Z,manual,https://suspectpackage.com/,desktop,1,99,860,0,34,795,21,795
