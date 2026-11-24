@@ -4,6 +4,10 @@ import { fileURLToPath } from 'node:url';
 import { launch } from 'chrome-launcher';
 import lighthouse from 'lighthouse';
 import desktopConfig from 'lighthouse/core/config/desktop-config.js';
+import { userAgents } from 'lighthouse/core/config/constants.js';
+
+// Appended to Lighthouse's own Chrome UA so GTM/GA4 and server logs can identify test traffic.
+const UA_MARKER = 'SuspectPackage-PerfMonitor';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const config = JSON.parse(fs.readFileSync(path.join(root, 'config.json'), 'utf8'));
@@ -47,7 +51,8 @@ async function warmUp(url) {
 async function singleRun(url, device) {
   const chrome = await launch({ chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu'] });
   try {
-    const flags = { port: chrome.port, output: 'json', logLevel: 'error', onlyCategories: ['performance'] };
+    const emulatedUserAgent = `${userAgents[device === 'desktop' ? 'desktop' : 'mobile']} ${UA_MARKER}`;
+    const flags = { port: chrome.port, output: 'json', logLevel: 'error', onlyCategories: ['performance'], emulatedUserAgent };
     const result = await lighthouse(url, flags, device === 'desktop' ? desktopConfig : undefined);
     const lhr = result.lhr;
     if (lhr.runtimeError) throw new Error(`${lhr.runtimeError.code}: ${lhr.runtimeError.message}`);
