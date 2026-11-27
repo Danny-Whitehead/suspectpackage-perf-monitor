@@ -2616,3 +2616,13 @@ timestamp,slot,url,device,runs,score,lcp,cls,tbt,fcp,ttfb,si
 2026-11-26T21:05:29.993Z,21:00,https://suspectpackage.com/basket/,desktop,3,100,385,0,0,385,201,385
 2026-11-26T21:05:29.993Z,21:00,https://suspectpackage.com/checkout/,desktop,3,100,384,0,0,384,164,384
 2026-11-26T21:05:29.993Z,21:00,https://suspectpackage.com/clearance/clearance/,desktop,3,98,909,0,22,791,16,791
+2026-11-27T00:12:59.560Z,00:00,https://suspectpackage.com/,mobile,3,63,4069,0,694,3379,18,3379
+2026-11-27T00:12:59.560Z,00:00,https://suspectpackage.com/product-category/spray-cans/,mobile,3,63,4066,0,703,3376,16,3376
+2026-11-27T00:12:59.560Z,00:00,https://suspectpackage.com/product-category/spray-cans/spray-paint/,mobile,3,58,4968,0,675,3375,28,3375
+2026-11-27T00:12:59.560Z,00:00,https://suspectpackage.com/product-category/spray-caps/,mobile,3,63,4067,0,690,3375,17,3375
+2026-11-27T00:12:59.560Z,00:00,https://suspectpackage.com/product/molotow-premium-400ml/,mobile,3,58,4220,0.0001,909,3377,17,3377
+2026-11-27T00:12:59.560Z,00:00,https://suspectpackage.com/,desktop,3,99,900,0,31,755,20,755
+2026-11-27T00:12:59.560Z,00:00,https://suspectpackage.com/product-category/spray-cans/,desktop,3,98,910,0,38,793,21,793
+2026-11-27T00:12:59.560Z,00:00,https://suspectpackage.com/product-category/spray-cans/spray-paint/,desktop,3,98,897,0.0127,32,791,19,791
+2026-11-27T00:12:59.560Z,00:00,https://suspectpackage.com/product-category/spray-caps/,desktop,3,99,897,0.0089,55,794,20,794
+2026-11-27T00:12:59.560Z,00:00,https://suspectpackage.com/product/molotow-premium-400ml/,desktop,3,98,1022,0,38,798,17,832
